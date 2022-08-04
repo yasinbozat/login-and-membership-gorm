@@ -1,2 +1,2 @@
 # gorm-db-example
-Example with gorm
+Example with gorm with postgresql.
