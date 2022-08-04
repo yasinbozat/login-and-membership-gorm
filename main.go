@@ -1,12 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 
-	//"github.com/gofiber/fiber/v2"
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 const (
@@ -17,43 +16,33 @@ const (
 	dbname   = "db_user"
 )
 
+type User struct {
+	Id   int64  `gorm:"primary_key"`
+	Name string `gorm:"size:255"`
+}
+
+var dsn = "host=localhost user=postgres password=1234 dbname=db_user port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+
 func main() {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
 
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	rows, err := db.Query("SELECT nickname FROM tb_user WHERE id=1")
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var name string
-		if err := rows.Scan(&name); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%s", name)
-	}
-	if err := rows.Err(); err != nil {
-		log.Fatal(err)
-	}
-	/*
-		app := fiber.New()
 
-		app.Get("/", func(c *fiber.Ctx) error {
-			return c.SendString("")
-		})
+	db.Debug().AutoMigrate(&User{})
+	db.Create(&User{Id: 1, Name: "Yasin"})
 
-		app.Listen(":3000")*/
+	var tbuser []User
+	db.Find(&tbuser)
+	for _, user := range tbuser {
+		fmt.Printf("ID:%d\nNickname:%s\n", user.Id, user.Name)
+		fmt.Printf("--------------------------------------------------------------\n")
+	}
+	/* 	app := fiber.New()
+	   	app.Get("/", func(c *fiber.Ctx) error {
+	   		return c.SendString("Nickname : nil")
+	   	})
+
+	   	app.Listen(":3000") */
 }
