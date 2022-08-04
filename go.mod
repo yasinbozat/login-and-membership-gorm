@@ -5,7 +5,16 @@ go 1.18
 require gorm.io/driver/postgres v1.3.8
 
 require (
+	github.com/gofiber/utils v0.0.10 // indirect
+	github.com/gorilla/schema v1.1.0 // indirect
+	github.com/lib/pq v1.10.6 // indirect
+	github.com/mattn/go-colorable v0.1.7 // indirect
+	github.com/mattn/go-isatty v0.0.12 // indirect
+)
+
+require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
+	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/fiber/v2 v2.36.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.12.1 // indirect
@@ -15,8 +24,10 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/pgtype v1.11.0 // indirect
 	github.com/jackc/pgx/v4 v4.16.1 // indirect
+	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/joho/godotenv v1.4.0
 	github.com/klauspost/compress v1.15.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.38.0 // indirect
