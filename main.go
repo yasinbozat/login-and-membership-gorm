@@ -16,19 +16,12 @@ type User struct {
 }
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	db, err := gorm.Open(postgres.Open(os.Getenv("CONNECTION_STRING")), &gorm.Config{})
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	//db.Debug().AutoMigrate(&User{})
 
-	fmt.Println(AddUser(5, "Hakan", db))
+	//fmt.Println(AddUser(5, "Hakan", db))
+
+	fmt.Println(SelectUser(2, DBConnect()))
 
 }
 
@@ -48,4 +41,18 @@ func SelectUser(id int, db *gorm.DB) string {
 		}
 	}
 	return "nil"
+}
+
+func DBConnect() *gorm.DB {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	db, err := gorm.Open(postgres.Open(os.Getenv("CONNECTION_STRING")), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return db
+
 }
