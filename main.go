@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -13,9 +15,13 @@ type User struct {
 	Name string `gorm:"size:255"`
 }
 
-var dsn = "host=localhost user=postgres password=1234 dbname=db_user port=5432 sslmode=disable TimeZone=Asia/Istanbul"
-
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	var dsn = os.Getenv("CONNECTION_STRING")
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
