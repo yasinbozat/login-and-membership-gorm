@@ -1,2 +1,2 @@
-# gorm-db-example
+# postgresql-with-go
 Example gorm with postgresql.
