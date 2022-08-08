@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -15,21 +16,29 @@ type User struct {
 	Name string `gorm:"size:255"`
 }
 
+const (
+	TimeFormat = "2003-08-30 15:30:00"
+)
+
 func main() {
-
-	//db.Debug().AutoMigrate(&User{})
-
-	//fmt.Println(AddUser(5, "Hakan", db))
-
-	fmt.Println(SelectUser(2, DBConnect()))
-
+	db().Debug().AutoMigrate(&User{})             // Auto Migration
+	fmt.Println(SelectUser(2, db()))              // Select user
+	fmt.Println(CurrentTime().Format(TimeFormat)) // Get db time
+	AddUser(8, "Mahmut Tuncer", db())             // Add user
 }
 
 func AddUser(id int, name string, db *gorm.DB) string {
 
 	db.Create(&User{Id: int64(id), Name: string(name)})
-
 	return SelectUser(id, db)
+
+}
+
+func CurrentTime() time.Time {
+	var exists time.Time
+	db().Raw("SELECT * FROM CURRENT_TIMESTAMP;").Row().Scan(&exists)
+
+	return exists
 }
 
 func SelectUser(id int, db *gorm.DB) string {
@@ -43,7 +52,7 @@ func SelectUser(id int, db *gorm.DB) string {
 	return "nil"
 }
 
-func DBConnect() *gorm.DB {
+func db() *gorm.DB {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
