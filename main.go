@@ -21,7 +21,8 @@ const (
 )
 
 func main() {
-	db().Debug().AutoMigrate(&User{})             // Auto Migration
+	db().Debug().AutoMigrate(&User{}) // Auto Migration User Table
+
 	fmt.Println(SelectUser(2, db()))              // Select user
 	fmt.Println(CurrentTime().Format(TimeFormat)) // Get db time
 	AddUser(8, "Mahmut Tuncer", db())             // Add user
