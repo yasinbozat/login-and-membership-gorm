@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"testing"
 	"time"
 )
@@ -10,6 +11,15 @@ func TestAddUser(t *testing.T) {
 	t.Run("add user", func(t *testing.T) {
 		got := AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (531) 833 2425", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
 		want := "501:Yasin"
+		assertCorrectMessage(t, got, want)
+	})
+}
+
+func TestLogin(t *testing.T) {
+
+	t.Run("login", func(t *testing.T) {
+		got := strconv.FormatBool(Login("admin@yasinbozat.com", "123456789"))
+		want := "true"
 		assertCorrectMessage(t, got, want)
 	})
 }

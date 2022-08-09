@@ -33,15 +33,27 @@ func main() {
 
 	//db().Debug().AutoMigrate(&User{}) // Auto Migration User Table
 	//AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (531) 833 2425", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
-	fmt.Print(SelectUserName(501, db()))
+	//fmt.Print(SelectUserName(501, db()))
+	fmt.Println(Login("admin@yasinbozat.com", "123456789"))
 
 }
 
-func AddUser(id int, name string, surname string, mail string, password string, phoneNumber string, country string, city string, mac string, db *gorm.DB) string {
+func AddUser(id int, name string, surname string, email string, password string, phoneNumber string, country string, city string, mac string, db *gorm.DB) string {
 
-	db.Create(&User{Id: int64(id), Name: name, Surname: surname, Mail: mail, Password: GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, Mac: mac})
+	db.Create(&User{Id: int64(id), Name: name, Surname: surname, Mail: email, Password: GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, Mac: mac})
 	return SelectUserName(id, db)
 
+}
+
+func Login(email, password string) bool {
+	var tbuser []User
+	db().Find(&tbuser)
+	for _, user := range tbuser {
+		if user.Mail == email && user.Password == GetMD5Hash(password) {
+			return true
+		}
+	}
+	return false
 }
 
 func CurrentTime() time.Time {
