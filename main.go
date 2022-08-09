@@ -34,7 +34,7 @@ type EpinUser struct {
 }
 
 const (
-	TimeFormat = "2003-08-30 15:30:00"
+	DDMMYYYYhhmmss = "2006-01-02 15:04:05"
 )
 
 func main() {
@@ -43,7 +43,7 @@ func main() {
 	//db().Debug().AutoMigrate(&EpinUser{})
 	//AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (543) 987 6543", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
 	//fmt.Print(SelectUserName(501, db()))
-	fmt.Print(Login("admin@yasinbozat.com", "123456789"))
+	Login("admin@yasinbozat.com", "123456789")
 	//DeleteUser(500)
 
 }
@@ -60,20 +60,22 @@ func Login(email, password string) bool {
 		tbuser    []User
 		customers []EpinUser
 		UserId    int64
+		name      string
 	)
 
 	db().Find(&tbuser)
 	for _, user := range tbuser {
 		if user.Mail == email && user.Password == GetMD5Hash(password) {
 			UserId = user.Id
+			name = user.Name + " " + user.Surname
 			break
 		}
 	}
-
 	db().Find(&customers)
 	for _, epinUser := range customers {
 		if epinUser.UserId == UserId {
 			if epinUser.ExpiryDate.After(time.Now()) {
+				fmt.Printf("Hello %v,\nYour expiry date: %v", name, epinUser.ExpiryDate.Format(DDMMYYYYhhmmss))
 				return true
 			} else {
 				return false
