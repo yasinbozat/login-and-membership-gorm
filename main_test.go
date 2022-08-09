@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+
 func TestAddUser(t *testing.T) {
 
 	t.Run("add user", func(t *testing.T) {
@@ -43,8 +44,8 @@ func assertCorrectMessage(t testing.TB, got, want string) {
 func TestCurrentTime(t *testing.T) {
 
 	t.Run("current time", func(t *testing.T) {
-		got := CurrentTime().Format(TimeFormat)
-		want := time.Now().Format(TimeFormat)
+		got := CurrentTime().Format(DDMMYYYYhhmmss)
+		want := time.Now().Format(DDMMYYYYhhmmss)
 		assertCorrectMessage(t, got, want)
 	})
 }
