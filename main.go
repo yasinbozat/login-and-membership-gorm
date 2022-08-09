@@ -25,6 +25,14 @@ type User struct {
 	Mac         string `gorm:"size:17"`
 }
 
+type EpinUser struct {
+	Id         int64 `gorm:"primary_key autoIncrement"`
+	UserId     int64
+	EpinId     int64
+	UsingDate  time.Time
+	ExpiryDate time.Time
+}
+
 const (
 	TimeFormat = "2003-08-30 15:30:00"
 )
@@ -32,10 +40,11 @@ const (
 func main() {
 
 	//db().Debug().AutoMigrate(&User{}) // Auto Migration User Table
+	//db().Debug().AutoMigrate(&EpinUser{})
 	//AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (543) 987 6543", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
 	//fmt.Print(SelectUserName(501, db()))
-	//fmt.Println(Login("admin@yasinbozat.com", "123456789"))
-	DeleteUser(500)
+	fmt.Print(Login("admin@yasinbozat.com", "123456789"))
+	//DeleteUser(500)
 
 }
 
@@ -47,11 +56,28 @@ func AddUser(id int, name string, surname string, email string, password string,
 }
 
 func Login(email, password string) bool {
-	var tbuser []User
+	var (
+		tbuser    []User
+		customers []EpinUser
+		UserId    int64
+	)
+
 	db().Find(&tbuser)
 	for _, user := range tbuser {
 		if user.Mail == email && user.Password == GetMD5Hash(password) {
-			return true
+			UserId = user.Id
+			break
+		}
+	}
+
+	db().Find(&customers)
+	for _, epinUser := range customers {
+		if epinUser.UserId == UserId {
+			if epinUser.ExpiryDate.After(time.Now()) {
+				return true
+			} else {
+				return false
+			}
 		}
 	}
 	return false
