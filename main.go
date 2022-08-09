@@ -34,7 +34,8 @@ func main() {
 	//db().Debug().AutoMigrate(&User{}) // Auto Migration User Table
 	//AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (543) 987 6543", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
 	//fmt.Print(SelectUserName(501, db()))
-	fmt.Println(Login("admin@yasinbozat.com", "123456789"))
+	//fmt.Println(Login("admin@yasinbozat.com", "123456789"))
+	DeleteUser(500)
 
 }
 
@@ -88,9 +89,7 @@ func db() *gorm.DB {
 
 }
 
-func DeleteUser() {
-	db().Delete(&User{Id: 501})
-}
+func DeleteUser(id int64) { db().Delete(&User{Id: int64(id)}) }
 
 func GetMD5Hash(text string) string {
 	hash := md5.Sum([]byte(text))
