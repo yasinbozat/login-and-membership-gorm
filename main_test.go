@@ -9,7 +9,7 @@ import (
 func TestAddUser(t *testing.T) {
 
 	t.Run("add user", func(t *testing.T) {
-		got := AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (531) 833 2425", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
+		got := AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (543) 987 6543", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
 		want := "501:Yasin"
 		assertCorrectMessage(t, got, want)
 	})

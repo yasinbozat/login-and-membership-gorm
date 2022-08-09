@@ -32,16 +32,16 @@ const (
 func main() {
 
 	//db().Debug().AutoMigrate(&User{}) // Auto Migration User Table
-	//AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (531) 833 2425", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
+	//AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (543) 987 6543", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
 	//fmt.Print(SelectUserName(501, db()))
 	fmt.Println(Login("admin@yasinbozat.com", "123456789"))
 
 }
 
-func AddUser(id int, name string, surname string, email string, password string, phoneNumber string, country string, city string, mac string, db *gorm.DB) string {
+func AddUser(id int, name string, surname string, email string, password string, phoneNumber string, country string, city string, mac string) string {
 
-	db.Create(&User{Id: int64(id), Name: name, Surname: surname, Mail: email, Password: GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, Mac: mac})
-	return SelectUserName(id, db)
+	db().Create(&User{Id: int64(id), Name: name, Surname: surname, Mail: email, Password: GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, Mac: mac})
+	return SelectUserName(id)
 
 }
 
@@ -63,9 +63,9 @@ func CurrentTime() time.Time {
 	return exists
 }
 
-func SelectUserName(id int, db *gorm.DB) string {
+func SelectUserName(id int) string {
 	var tbuser []User
-	db.Find(&tbuser)
+	db().Find(&tbuser)
 	for _, user := range tbuser {
 		if user.Id == int64(id) {
 			return fmt.Sprint(user.Id) + ":" + user.Name
@@ -86,6 +86,10 @@ func db() *gorm.DB {
 	}
 	return db
 
+}
+
+func DeleteUser() {
+	db().Delete(&User{Id: 501})
 }
 
 func GetMD5Hash(text string) string {
