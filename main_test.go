@@ -8,8 +8,8 @@ import (
 func TestAddUser(t *testing.T) {
 
 	t.Run("add user", func(t *testing.T) {
-		got := AddUser(7, "Bozat", db())
-		want := "7:Bozat"
+		got := AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (531) 833 2425", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
+		want := "501:Yasin"
 		assertCorrectMessage(t, got, want)
 	})
 }
@@ -17,8 +17,8 @@ func TestAddUser(t *testing.T) {
 func TestSelectUser(t *testing.T) {
 
 	t.Run("select user", func(t *testing.T) {
-		got := SelectUser(1, db())
-		want := "1:Yasin"
+		got := SelectUserName(501, db())
+		want := "501:Yasin"
 		assertCorrectMessage(t, got, want)
 	})
 }
