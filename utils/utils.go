@@ -21,35 +21,27 @@ func GetMD5Hash(text string) string {
 
 func Login(email, password string) bool {
 	var (
-		tbuser    []models.User
-		customers []models.UserKey
-		UserId    int64
-		name      string
+		tb_User     []models.User
+		tb_User_Key []models.UserKey
 	)
-	_ = name
 
-	database.DB.Find(&tbuser)
-	for _, user := range tbuser {
+	database.DB.Find(&tb_User)
+	for _, user := range tb_User {
 		if user.Mail == email && user.Password == GetMD5Hash(password) {
-			UserId = user.Id
-			name = user.Name + " " + user.Surname
+			database.DB.Find(&tb_User_Key)
+			for _, userKey := range tb_User_Key {
+				if userKey.UserId == user.Id {
+					if userKey.ExpiryDate.After(time.Now()) {
+						RemainingTime(userKey.UserId)
+						return true
+					} else {
+						return false
+					}
+				}
+			}
 			break
 		}
 	}
-
-	database.DB.Find(&customers)
-	for _, userKey := range customers {
-
-		if userKey.UserId == UserId {
-			if userKey.ExpiryDate.After(time.Now()) {
-				RemainingTime(userKey.UserId)
-				return true
-			} else {
-				return false
-			}
-		}
-	}
-
 	return false
 }
 

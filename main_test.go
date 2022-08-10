@@ -1,6 +1,7 @@
 package main
 
 import (
+	"db_connect_app/models"
 	"db_connect_app/utils"
 	"strconv"
 	"testing"
@@ -10,7 +11,7 @@ import (
 func TestAddUser(t *testing.T) {
 
 	t.Run("add user", func(t *testing.T) {
-		got := AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (543) 987 6543", "Turkey",
+		got := models.AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (543) 987 6543", "Turkey",
 			"Sivas", "99:34:YB:23:BZ:58")
 		want := "501:Yasin"
 		assertCorrectMessage(t, got, want)
@@ -29,7 +30,7 @@ func TestLogin(t *testing.T) {
 func TestSelectUser(t *testing.T) {
 
 	t.Run("select user", func(t *testing.T) {
-		got := SelectUserName(501)
+		got := models.SelectUserName(501)
 		want := "501:Yasin"
 		assertCorrectMessage(t, got, want)
 	})
@@ -45,7 +46,7 @@ func assertCorrectMessage(t testing.TB, got, want string) {
 func TestCurrentTime(t *testing.T) {
 
 	t.Run("current time", func(t *testing.T) {
-		got := CurrentTime().Format(utils.DDMMYYYYhhmmss)
+		got := utils.CurrentTime().Format(utils.DDMMYYYYhhmmss)
 		want := time.Now().Format(utils.DDMMYYYYhhmmss)
 		assertCorrectMessage(t, got, want)
 	})

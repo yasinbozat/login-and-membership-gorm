@@ -1,11 +1,8 @@
 package main
 
 import (
-	"db_connect_app/database"
-	"db_connect_app/models"
 	_ "db_connect_app/models"
 	"db_connect_app/utils"
-	"fmt"
 )
 
 func main() {
@@ -17,24 +14,6 @@ func main() {
 	utils.Login("admin@yasinbozat.com", "123456789")
 	//DeleteUser(500)
 	//utils.RemainingTime()
+	//DB.Debug().AutoMigrate(&models.User{}) // Auto Migration User Table
+	//DB.Debug().AutoMigrate(&models.UserKey{})
 }
-
-func AddUser(id int, name string, surname string, email string, password string, phoneNumber string, country string, city string, mac string) string {
-
-	database.DB.Create(&models.User{Id: int64(id), Name: name, Surname: surname, Mail: email, Password: utils.GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, Mac: mac})
-	return SelectUserName(id)
-
-}
-
-func SelectUserName(id int) string {
-	var tbuser []models.User
-	database.DB.Find(&tbuser)
-	for _, user := range tbuser {
-		if user.Id == int64(id) {
-			return fmt.Sprint(user.Id) + ":" + user.Name
-		}
-	}
-	return "nil"
-}
-
-func DeleteUser(id int64) { database.DB.Delete(&models.User{Id: int64(id)}) }
