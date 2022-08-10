@@ -22,10 +22,11 @@ func GetMD5Hash(text string) string {
 func Login(email, password string) bool {
 	var (
 		tbuser    []models.User
-		customers []models.EpinUser
+		customers []models.UserKey
 		UserId    int64
 		name      string
 	)
+	_ = name
 
 	database.DB.Find(&tbuser)
 	for _, user := range tbuser {
@@ -37,19 +38,11 @@ func Login(email, password string) bool {
 	}
 
 	database.DB.Find(&customers)
-	for _, epinUser := range customers {
-		epinUser.RemainingTime.Day = epinUser.ExpiryDate.Day() - time.Now().Day()
-		epinUser.RemainingTime.Hour = epinUser.ExpiryDate.Hour() - time.Now().Hour()
-		epinUser.RemainingTime.Minute = epinUser.ExpiryDate.Minute() - time.Now().Minute()
-		epinUser.RemainingTime.Second = epinUser.ExpiryDate.Minute() - time.Now().Second()
-		if epinUser.UserId == UserId {
-			if epinUser.ExpiryDate.After(time.Now()) {
-				fmt.Printf("Hello %v,\nYour expiry date: %v\n%v Days %v Hours %v Minutes %v Seconds", name,
-																			epinUser.ExpiryDate.Format(DDMMYYYYhhmmss), 
-																			epinUser.RemainingTime.Day, 
-																			epinUser.RemainingTime.Hour, 
-																			epinUser.RemainingTime.Minute, 
-																			epinUser.RemainingTime.Second)
+	for _, userKey := range customers {
+
+		if userKey.UserId == UserId {
+			if userKey.ExpiryDate.After(time.Now()) {
+				RemainingTime(userKey.UserId)
 				return true
 			} else {
 				return false
@@ -58,4 +51,43 @@ func Login(email, password string) bool {
 	}
 
 	return false
+}
+
+func RemainingTime(id int64) {
+	var tb_userKey []models.UserKey
+	database.DB.Find(&tb_userKey)
+	for _, userKey := range tb_userKey {
+		if userKey.UserId == id {
+			if userKey.ExpiryDate.After(time.Now()) {
+				fmt.Println(ParseRemainingTime(userKey.ExpiryDate))
+			}
+		}
+	}
+}
+
+func ParseRemainingTime(expDate time.Time) string {
+	var time string = expDate.Sub(CurrentTime()).String()
+	var hour, minute, second string
+	var x, y int
+	for i := range time {
+
+		if string(time[i]) == "h" {
+			hour = time[0:i]
+			y = i
+		}
+		if string(time[i]) == "m" {
+			minute = time[y+1 : i]
+			x = i
+		}
+		if string(time[i]) == "." {
+			second = time[x+1 : i]
+		}
+	}
+	return hour + " Hours " + minute + " Minutes " + second + " Seconds remaining..."
+}
+
+func CurrentTime() time.Time {
+	var exists time.Time
+	database.DB.Raw("SELECT * FROM CURRENT_TIMESTAMP;").Row().Scan(&exists)
+	return exists
 }
