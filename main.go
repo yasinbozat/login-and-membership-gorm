@@ -1,100 +1,42 @@
 package main
 
 import (
-	"crypto/md5"
-	"encoding/hex"
+	"db_connect_app/database"
+	"db_connect_app/models"
+	_ "db_connect_app/models"
+	"db_connect_app/utils"
 	"fmt"
-	"log"
-	"os"
 	"time"
-
-	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-)
-
-type User struct {
-	Id          int64  `gorm:"primary_key autoIncrement"`
-	Name        string `gorm:"size:50"`
-	Surname     string `gorm:"size:50"`
-	Mail        string `gorm:"size:100"`
-	Password    string `gorm:"size:50"`
-	PhoneNumber string `gorm:"size:25"`
-	Country     string `gorm:"size:50"`
-	City        string `gorm:"size:50"`
-	Mac         string `gorm:"size:17"`
-}
-
-type EpinUser struct {
-	Id         int64 `gorm:"primary_key autoIncrement"`
-	UserId     int64
-	EpinId     int64
-	UsingDate  time.Time
-	ExpiryDate time.Time
-}
-
-const (
-	DDMMYYYYhhmmss = "2006-01-02 15:04:05"
 )
 
 func main() {
 
-	//db().Debug().AutoMigrate(&User{}) // Auto Migration User Table
-	//db().Debug().AutoMigrate(&EpinUser{})
+	//database.DB.Debug().AutoMigrate(&User{}) // Auto Migration User Table
+	//database.DB.Debug().AutoMigrate(&EpinUser{})
 	//AddUser(501, "Yasin", "Bozat", "admin@yasinbozat.com", "123456789", "+90 (543) 987 6543", "Turkey", "Sivas", "99:34:YB:23:BZ:58", db())
 	//fmt.Print(SelectUserName(501, db()))
-	Login("admin@yasinbozat.com", "123456789")
+	utils.Login("admin@yasinbozat.com", "123456789")
 	//DeleteUser(500)
 
 }
 
 func AddUser(id int, name string, surname string, email string, password string, phoneNumber string, country string, city string, mac string) string {
 
-	db().Create(&User{Id: int64(id), Name: name, Surname: surname, Mail: email, Password: GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, Mac: mac})
+	database.DB.Create(&models.User{Id: int64(id), Name: name, Surname: surname, Mail: email, Password: utils.GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, Mac: mac})
 	return SelectUserName(id)
 
 }
 
-func Login(email, password string) bool {
-	var (
-		tbuser    []User
-		customers []EpinUser
-		UserId    int64
-		name      string
-	)
-
-	db().Find(&tbuser)
-	for _, user := range tbuser {
-		if user.Mail == email && user.Password == GetMD5Hash(password) {
-			UserId = user.Id
-			name = user.Name + " " + user.Surname
-			break
-		}
-	}
-	db().Find(&customers)
-	for _, epinUser := range customers {
-		if epinUser.UserId == UserId {
-			if epinUser.ExpiryDate.After(time.Now()) {
-				fmt.Printf("Hello %v,\nYour expiry date: %v", name, epinUser.ExpiryDate.Format(DDMMYYYYhhmmss))
-				return true
-			} else {
-				return false
-			}
-		}
-	}
-	return false
-}
-
 func CurrentTime() time.Time {
 	var exists time.Time
-	db().Raw("SELECT * FROM CURRENT_TIMESTAMP;").Row().Scan(&exists)
+	database.DB.Raw("SELECT * FROM CURRENT_TIMESTAMP;").Row().Scan(&exists)
 
 	return exists
 }
 
 func SelectUserName(id int) string {
-	var tbuser []User
-	db().Find(&tbuser)
+	var tbuser []models.User
+	database.DB.Find(&tbuser)
 	for _, user := range tbuser {
 		if user.Id == int64(id) {
 			return fmt.Sprint(user.Id) + ":" + user.Name
@@ -103,23 +45,4 @@ func SelectUserName(id int) string {
 	return "nil"
 }
 
-func db() *gorm.DB {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	db, err := gorm.Open(postgres.Open(os.Getenv("CONNECTION_STRING")), &gorm.Config{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	return db
-
-}
-
-func DeleteUser(id int64) { db().Delete(&User{Id: int64(id)}) }
-
-func GetMD5Hash(text string) string {
-	hash := md5.Sum([]byte(text))
-	return hex.EncodeToString(hash[:])
-}
+func DeleteUser(id int64) { database.DB.Delete(&models.User{Id: int64(id)}) }
