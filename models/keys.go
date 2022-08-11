@@ -9,5 +9,6 @@ type Key struct {
 	Key        int64 `gorm:"size:30"`
 	Type       byte
 	Active     byte
+	Day        int
 	CreateDate time.Time
 }
