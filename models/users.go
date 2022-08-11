@@ -1,9 +1,8 @@
 package models
 
 import (
-	"crypto/md5"
 	"db_connect_app/database"
-	"encoding/hex"
+	"db_connect_app/utils"
 	"fmt"
 )
 
@@ -23,7 +22,7 @@ type User struct {
 func AddUser(id int, name string, surname string, email string, password string, phoneNumber string, country string,
 	city string, mac string) string {
 	database.DB.Create(&User{Id: int64(id), Name: name, Surname: surname, Mail: email,
-		Password: GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, Mac: mac})
+		Password: utils.GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, Mac: mac})
 	return SelectUserName(id)
 }
 
@@ -39,7 +38,24 @@ func SelectUserName(id int) string {
 }
 
 func DeleteUser(id int64) { database.DB.Delete(&User{Id: int64(id)}) }
-func GetMD5Hash(text string) string {
-	hash := md5.Sum([]byte(text))
-	return hex.EncodeToString(hash[:])
+
+func Login(email, password string) bool {
+	var user = User{Mail: email, Password: utils.GetMD5Hash(password)}
+	database.DB.Where(&user, "mail", "password").First(&user)
+	if user.Id != 0 {
+		var userKey = UserKey{UserId: user.Id}
+		database.DB.Where(&userKey, "user_id").First(&userKey)
+		if userKey.Id != 0 {
+			if userKey.ExpiryDate.After(CurrentTime()) {
+				RemainingTime(userKey.UserId)
+				return true
+			} else {
+				fmt.Println("Your time has expired! Please activate a key.")
+				return false
+			}
+		}
+	} else if user.Id == 0 {
+		fmt.Println("Username or password incorrect.")
+	}
+	return false
 }
