@@ -5,7 +5,7 @@ import (
 )
 
 type UserKey struct {
-	Id            int64 `gorm:"primary_key autoIncrement"`
+	Id            int64 `gorm:"primary_key;auto_increment"`
 	UserId        int64
 	KeyId         int64
 	UsingDate     time.Time
