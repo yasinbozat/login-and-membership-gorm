@@ -73,3 +73,10 @@ func Login(email, password string) bool {
 	}
 	return false
 }
+
+func CreateUser(name, surname, mail, password, phoneNumber, country, city, mac string) {
+
+	user := User{Name: name, Surname: surname, Mail: mail, Password: password, PhoneNumber: phoneNumber, Country: country, City: city, Ban: 0, Mac: mac}
+	database.DB.Create(&user)
+
+}

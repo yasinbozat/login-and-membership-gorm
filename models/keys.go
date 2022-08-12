@@ -6,7 +6,7 @@ import (
 
 type Key struct {
 	Id         int64  `gorm:"primary_key;auto_increment"`
-	Key        string `gorm:"size:30"`
+	Key        string `gorm:"size:32"`
 	Type       byte
 	Active     byte
 	Day        int
