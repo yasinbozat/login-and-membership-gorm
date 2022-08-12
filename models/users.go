@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	Id          int64  `gorm:"primary_key autoIncrement"`
+	Id          int64  `gorm:"primary_key;auto_increment"`
 	Name        string `gorm:"size:50"`
 	Surname     string `gorm:"size:50"`
 	Mail        string `gorm:"size:100"`
@@ -42,23 +42,33 @@ func DeleteUser(id int64) { database.DB.Delete(&User{Id: int64(id)}) }
 func Login(email, password string) bool {
 	var user = User{Mail: email, Password: utils.GetMD5Hash(password)}
 	database.DB.Where(&user, "mail", "password").First(&user) //Check mail and password
-	if user.Id != 0 && user.Ban == 0 {
-		var userKey = UserKey{UserId: user.Id}
-		database.DB.Where(&userKey, "user_id").First(&userKey) //Find remaining time from user key using user id
-		if userKey.Id != 0 {
-			if userKey.ExpiryDate.After(CurrentTime()) { //Check expiry date > current time
-				RemainingTime(userKey.UserId)
-				return true
+	if user.Id != 0 {
+		if user.Ban == 0 {
+			if user.Mac == "99:34:YB:23:BZ:58" {
+				var userKey = UserKey{UserId: user.Id}
+				database.DB.Where(&userKey, "user_id").First(&userKey) //Find remaining time from user key using user id
+				if userKey.Id != 0 {
+					if userKey.ExpiryDate.After(CurrentTime()) { //Check expiry date > current time
+						RemainingTime(userKey.UserId)
+						return true
+					} else {
+						fmt.Println("Your time has expired! Please activate a key.") //If user time has expired
+						return false
+					}
+				} else {
+					fmt.Println("Please activate a key.") //If user never used key
+					return false
+				}
 			} else {
-				fmt.Println("Your time has expired! Please activate a key.")
+				fmt.Println("Logged in from an unknown computer. Please login from the registered computer.") //If user has wrong mac address
 				return false
 			}
 		} else {
-			fmt.Println("Please activate a key.")
+			fmt.Println("Your account has been banned!") //If user has been banned
 			return false
 		}
 	} else if user.Id == 0 {
-		fmt.Println("Username or password incorrect.")
+		fmt.Println("Invalid username or password.")
 		return false
 	}
 	return false

@@ -10,5 +10,6 @@ type Key struct {
 	Type       byte
 	Active     byte
 	Day        int
+	Ban        byte
 	CreateDate time.Time
 }
