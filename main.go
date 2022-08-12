@@ -7,7 +7,7 @@ import (
 
 func main() {
 
-	//database.DB.Debug().AutoMigrate(&models.User{},&models.Key{},&models.UserKey{}) // Auto Migration User Table
+	//database.DB.Debug().AutoMigrate(&models.User{}, &models.Key{}, &models.UserKey{}) // Auto Migration User Table
 	models.Login("admin@yasinbozat.com", "123456789")
 
 }

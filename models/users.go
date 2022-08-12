@@ -15,7 +15,7 @@ type User struct {
 	PhoneNumber string `gorm:"size:25"`
 	Country     string `gorm:"size:50"`
 	City        string `gorm:"size:50"`
-	Ban         int64
+	Ban         byte
 	Mac         string `gorm:"size:17"`
 }
 
@@ -41,21 +41,25 @@ func DeleteUser(id int64) { database.DB.Delete(&User{Id: int64(id)}) }
 
 func Login(email, password string) bool {
 	var user = User{Mail: email, Password: utils.GetMD5Hash(password)}
-	database.DB.Where(&user, "mail", "password").First(&user)
-	if user.Id != 0 {
+	database.DB.Where(&user, "mail", "password").First(&user) //Check mail and password
+	if user.Id != 0 && user.Ban == 0 {
 		var userKey = UserKey{UserId: user.Id}
-		database.DB.Where(&userKey, "user_id").First(&userKey)
+		database.DB.Where(&userKey, "user_id").First(&userKey) //Find remaining time from user key using user id
 		if userKey.Id != 0 {
-			if userKey.ExpiryDate.After(CurrentTime()) {
+			if userKey.ExpiryDate.After(CurrentTime()) { //Check expiry date > current time
 				RemainingTime(userKey.UserId)
 				return true
 			} else {
 				fmt.Println("Your time has expired! Please activate a key.")
 				return false
 			}
+		} else {
+			fmt.Println("Please activate a key.")
+			return false
 		}
 	} else if user.Id == 0 {
 		fmt.Println("Username or password incorrect.")
+		return false
 	}
 	return false
 }
