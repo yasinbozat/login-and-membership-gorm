@@ -18,7 +18,7 @@ func init() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	DB, err = gorm.Open(postgres.Open(os.Getenv("CONNECTION_STRING")), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+	DB, err = gorm.Open(postgres.Open(os.Getenv("CONNECTION_STRING")), &gorm.Config{Logger: logger.Default.LogMode(logger.Error)})
 	if err != nil {
 		log.Fatal(err)
 	}

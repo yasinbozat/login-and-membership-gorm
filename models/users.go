@@ -4,25 +4,26 @@ import (
 	"db_connect_app/database"
 	"db_connect_app/utils"
 	"fmt"
+	"log"
 )
 
 type User struct {
-	Id          int64  `gorm:"primary_key;auto_increment"`
+	Id          int64  `gorm:"primaryKey;autoIncrement:true"`
 	Name        string `gorm:"size:50"`
 	Surname     string `gorm:"size:50"`
-	Mail        string `gorm:"size:100"`
-	Password    string `gorm:"size:50"`
+	Mail        string `gorm:"size:100;not_null"`
+	Password    string `gorm:"size:50;not_null"`
 	PhoneNumber string `gorm:"size:25"`
 	Country     string `gorm:"size:50"`
 	City        string `gorm:"size:50"`
 	Ban         byte
-	Mac         string `gorm:"size:17"`
+	HWID        string `gorm:"size:33;not_null"`
 }
 
 func AddUser(id int, name string, surname string, email string, password string, phoneNumber string, country string,
-	city string, mac string) string {
+	city string, hwid string) string {
 	database.DB.Create(&User{Id: int64(id), Name: name, Surname: surname, Mail: email,
-		Password: utils.GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, Mac: mac})
+		Password: utils.GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, HWID: hwid})
 	return SelectUserName(id)
 }
 
@@ -41,13 +42,13 @@ func DeleteUser(id int64) { database.DB.Delete(&User{Id: int64(id)}) }
 
 func Login(email, password string) bool {
 	var user = User{Mail: email, Password: utils.GetMD5Hash(password)}
-	database.DB.Where(&user, "mail", "password").First(&user) //Check mail and password
-	if user.Id != 0 {
+	err := database.DB.Where(&user, "mail", "password").First(&user).Error //Check mail and password
+	if err == nil {
 		if user.Ban == 0 {
-			if user.Mac == "99:34:YB:23:BZ:58" {
+			if user.HWID == "99:34:YB:23:BZ:58" {
 				var userKey = UserKey{UserId: user.Id}
-				database.DB.Where(&userKey, "user_id").First(&userKey) //Find remaining time from user key using user id
-				if userKey.Id != 0 {
+				err = database.DB.Where(&userKey, "user_id").First(&userKey).Error //Find remaining time from user key using user id
+				if err == nil {
 					if userKey.ExpiryDate.After(CurrentTime()) { //Check expiry date > current time
 						RemainingTime(userKey.UserId)
 						return true
@@ -60,7 +61,7 @@ func Login(email, password string) bool {
 					return false
 				}
 			} else {
-				fmt.Println("Logged in from an unknown computer. Please login from the registered computer.") //If user has wrong mac address
+				fmt.Println("Logged in from an unknown computer. Please login from the registered computer.") //If user has wrong hwid
 				return false
 			}
 		} else {
@@ -74,9 +75,14 @@ func Login(email, password string) bool {
 	return false
 }
 
-func CreateUser(name, surname, mail, password, phoneNumber, country, city, mac string) {
+func CreateUser(name, surname, mail, password, phoneNumber, country, city string) {
 
-	user := User{Name: name, Surname: surname, Mail: mail, Password: password, PhoneNumber: phoneNumber, Country: country, City: city, Ban: 0, Mac: mac}
-	database.DB.Create(&user)
+	user := User{Name: name, Surname: surname, Mail: mail, Password: utils.GetMD5Hash(password), PhoneNumber: phoneNumber,
+		Country: country, City: city, Ban: 0, HWID: utils.GetHWID()}
+
+	err := database.DB.Create(&user).Error
+	if err != nil {
+		log.Panic(err)
+	}
 
 }
