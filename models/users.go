@@ -3,15 +3,17 @@ package models
 import (
 	"db_connect_app/database"
 	"db_connect_app/utils"
+	"errors"
 	"fmt"
-	"log"
+
+	"github.com/jackc/pgconn"
 )
 
 type User struct {
 	Id          int64  `gorm:"primaryKey;autoIncrement:true"`
 	Name        string `gorm:"size:50"`
 	Surname     string `gorm:"size:50"`
-	Mail        string `gorm:"size:100;not_null"`
+	Mail        string `gorm:"size:100;not_null;unique"`
 	Password    string `gorm:"size:50;not_null"`
 	PhoneNumber string `gorm:"size:25"`
 	Country     string `gorm:"size:50"`
@@ -25,6 +27,7 @@ func AddUser(id int, name string, surname string, email string, password string,
 	database.DB.Create(&User{Id: int64(id), Name: name, Surname: surname, Mail: email,
 		Password: utils.GetMD5Hash(password), PhoneNumber: phoneNumber, Country: country, City: city, HWID: hwid})
 	return SelectUserName(id)
+
 }
 
 func SelectUserName(id int) string {
@@ -42,13 +45,12 @@ func DeleteUser(id int64) { database.DB.Delete(&User{Id: int64(id)}) }
 
 func Login(email, password string) bool {
 	var user = User{Mail: email, Password: utils.GetMD5Hash(password)}
-	err := database.DB.Where(&user, "mail", "password").First(&user).Error //Check mail and password
-	if err == nil {
+	if results := database.DB.Where(&user, "mail", "password").First(&user); results.Error == nil { //Check mail and password
 		if user.Ban == 0 {
-			if user.HWID == "99:34:YB:23:BZ:58" {
+			if user.HWID == utils.GetHWID() {
 				var userKey = UserKey{UserId: user.Id}
-				err = database.DB.Where(&userKey, "user_id").First(&userKey).Error //Find remaining time from user key using user id
-				if err == nil {
+				//Find remaining time from user key using user id
+				if results = database.DB.Where(&userKey, "user_id").First(&userKey); results.Error == nil {
 					if userKey.ExpiryDate.After(CurrentTime()) { //Check expiry date > current time
 						RemainingTime(userKey.UserId)
 						return true
@@ -73,6 +75,7 @@ func Login(email, password string) bool {
 		return false
 	}
 	return false
+
 }
 
 func CreateUser(name, surname, mail, password, phoneNumber, country, city string) {
@@ -80,9 +83,13 @@ func CreateUser(name, surname, mail, password, phoneNumber, country, city string
 	user := User{Name: name, Surname: surname, Mail: mail, Password: utils.GetMD5Hash(password), PhoneNumber: phoneNumber,
 		Country: country, City: city, Ban: 0, HWID: utils.GetHWID()}
 
-	err := database.DB.Create(&user).Error
-	if err != nil {
-		log.Panic(err)
+	if results := database.DB.Create(&user); results.Error != nil {
+		if pgError := results.Error.(*pgconn.PgError); errors.Is(results.Error, pgError) {
+			switch pgError.Code {
+			case "23505":
+				fmt.Println("")
+			}
+		}
 	}
 
 }
