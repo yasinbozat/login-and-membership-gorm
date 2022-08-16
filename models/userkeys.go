@@ -19,35 +19,47 @@ type RemTime struct {
 	Day, Hour, Minute, Second int
 }
 
-func UseKey(email, key string) {
+func UseKey(email, key string) bool {
 
 	var (
-		keys = Key{Key: key}
-		user = User{Mail: email}
+		keys     = Key{Key: key}
+		user     = User{Mail: email}
 		userkeys = UserKey{}
 	)
-	if results := database.DB.Where(&user, "mail").First(&user); results.Error == nil { 
-		if results = database.DB.Where(&keys, "key").First(&keys); results.Error == nil { 
-			if keys.Active == 1 && keys.Ban == 0 {
-				if user.Ban == 0 {
-					if results = database.DB.Where(&userkeys, "us").First(&userkeys); results.Error == nil { 
 
+	if results := database.DB.Where(&user, "mail").First(&user); results.Error == nil {
+		userkeys.UserId = user.Id
+		if user.Ban == 0 {
+			if results = database.DB.Where(&keys, "key").First(&keys); results.Error == nil {
+				if keys.Active == 1 && keys.Ban == 0 {
+					if results = database.DB.Where(&userkeys, "user_id").First(&userkeys); results.Error == nil {
+						userkeys.ExpiryDate = CalculateExpiryDate(userkeys, keys)
+						database.DB.Where("user_id = ?", user.Id).Delete(&userkeys)
+						userkeys = UserKey{UserId: user.Id, KeyId: keys.Id, UsingDate: CurrentTime(), ExpiryDate: userkeys.ExpiryDate}
+						database.DB.Create(&userkeys)
+						return true
+					} else {
+						userkeys.ExpiryDate = CalculateExpiryDate(userkeys, keys)
+						userkeys = UserKey{UserId: user.Id, KeyId: keys.Id, UsingDate: CurrentTime(), ExpiryDate: userkeys.ExpiryDate}
+						database.DB.Create(&userkeys)
+						return true
 					}
 				} else {
-					fmt.Println("You cannot use a key on a blocked account.")
-					return
+					fmt.Println("Invalid key!")
+					return false
 				}
 			} else {
-				fmt.Println("Invalid key!")
-				return
+				fmt.Println("Invalid key! a")
+				return false
 			}
 		} else {
-			fmt.Println("Invalid key!")
-			return
+			fmt.Println("You cannot use a key on a blocked account.")
+			return false
 		}
 	} else {
 		fmt.Println("Invalid username!")
-		return
+		return false
 	}
 
+	return false
 }

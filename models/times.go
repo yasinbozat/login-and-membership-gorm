@@ -23,6 +23,16 @@ func RemainingTime(id int64) {
 	}
 }
 
+func CalculateExpiryDate(userkeys UserKey, keys Key) time.Time {
+	var addtime time.Duration
+	if userkeys.ExpiryDate.After(CurrentTime()) {
+		addtime += userkeys.ExpiryDate.Sub(CurrentTime())
+	}
+	addtime += (time.Hour * time.Duration(keys.Day) * 24)
+	userkeys.ExpiryDate = CurrentTime().Add(addtime)
+	return userkeys.ExpiryDate
+}
+
 func ParseRemainingTime(expDate time.Time) string {
 	var time string = expDate.Sub(CurrentTime()).String()
 	var hour, minute, second string
