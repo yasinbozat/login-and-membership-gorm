@@ -20,8 +20,8 @@ func TestAddUser(t *testing.T) {
 func TestLogin(t *testing.T) {
 
 	t.Run("login", func(t *testing.T) {
-		got := strconv.FormatBool(models.Login("admin@yasinbozat.com", "123456789"))
-		want := "true"
+		got := strconv.FormatBool(models.Login("yasinbozatr@gmail.com", "123456789"))
+		want := "false"
 		assertCorrectMessage(t, got, want)
 	})
 }

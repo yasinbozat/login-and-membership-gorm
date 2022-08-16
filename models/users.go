@@ -94,33 +94,4 @@ func CreateUser(name, surname, mail, password, phoneNumber, country, city string
 
 }
 
-func UseKey(email, key string) {
 
-	var (
-		keys = Key{Key: key}
-		user = User{Mail: email}
-		//userkeys = UserKey{}
-	)
-	if results := database.DB.Where(&user, "mail").First(&user); results.Error == nil { //Check mail and password
-		if results = database.DB.Where(&keys, "key").First(&keys); results.Error == nil { //Check mail and password
-			if keys.Active == 1 && keys.Ban == 0 {
-				if user.Ban == 0 {
-
-				} else {
-					fmt.Println("You cannot use a key on a blocked account.")
-					return
-				}
-			} else {
-				fmt.Println("Invalid key!")
-				return
-			}
-		} else {
-			fmt.Println("Invalid key!")
-			return
-		}
-	} else {
-		fmt.Println("Invalid username!")
-		return
-	}
-
-}
