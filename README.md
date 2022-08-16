@@ -1,2 +1,4 @@
 # postgresql-with-go
-Example gorm with postgresql.
+
+Golang create user, key and login struct in golang.
+
