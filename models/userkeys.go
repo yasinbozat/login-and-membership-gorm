@@ -33,15 +33,11 @@ func UseKey(email, key string) bool {
 			if results = database.DB.Where(&keys, "key").First(&keys); results.Error == nil {
 				if keys.Active == 1 && keys.Ban == 0 {
 					if results = database.DB.Where(&userkeys, "user_id").First(&userkeys); results.Error == nil {
-						userkeys.ExpiryDate = CalculateExpiryDate(userkeys, keys)
 						database.DB.Where("user_id = ?", user.Id).Delete(&userkeys)
-						userkeys = UserKey{UserId: user.Id, KeyId: keys.Id, UsingDate: CurrentTime(), ExpiryDate: userkeys.ExpiryDate}
-						database.DB.Create(&userkeys)
+						AddDay(userkeys, user, keys)
 						return true
 					} else {
-						userkeys.ExpiryDate = CalculateExpiryDate(userkeys, keys)
-						userkeys = UserKey{UserId: user.Id, KeyId: keys.Id, UsingDate: CurrentTime(), ExpiryDate: userkeys.ExpiryDate}
-						database.DB.Create(&userkeys)
+						AddDay(userkeys, user, keys)
 						return true
 					}
 				} else {
@@ -49,7 +45,7 @@ func UseKey(email, key string) bool {
 					return false
 				}
 			} else {
-				fmt.Println("Invalid key! a")
+				fmt.Println("Invalid key.")
 				return false
 			}
 		} else {
@@ -62,4 +58,18 @@ func UseKey(email, key string) bool {
 	}
 
 	return false
+}
+
+func AddDay(userkeys UserKey, user User, keys Key) {
+	userkeys.ExpiryDate = CalculateExpiryDate(userkeys, keys)
+	userkeys = UserKey{
+		UserId:     user.Id,
+		KeyId:      keys.Id,
+		UsingDate:  CurrentTime(),
+		ExpiryDate: userkeys.ExpiryDate}
+	database.DB.Create(&userkeys)
+	err := database.DB.Model(&keys).Update("active", 0).Error
+	if err != nil {
+		fmt.Println(err)
+	}
 }
