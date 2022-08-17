@@ -4,8 +4,8 @@ Golang create user, key and login struct in golang.
 
 Using Gorm, user login, membership system, key activation and licensing system for a certain day were made.
 
-user registration,
-user login,
+User registration,
+User login,
 License key activation
 
 has functions.
