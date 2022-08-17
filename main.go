@@ -9,7 +9,7 @@ func main() {
 
 	//database.DB.Debug().AutoMigrate(&models.User{}, &models.Key{}, &models.UserKey{}) // Auto Migration User Table
 	//models.Login("yasinbozatr@gmail.com", "123456789")
-	models.UseKey("yasinbozatr@gmail.com", "H9F4M-UZLJY-5DEFV-133G0-JH8HY")
+	models.UseKey("yasinbozatr@gmail.com", "17877-AIR76-MU85N-3Y84U-P78XX")
 	//fmt.Println(utils.GetHWID())
 	//models.CreateUser("Yasin", "Bozat", "yasinbozatr@gmail.com", "123456789", "5321234567", "Turkey", "Istanbul")
 	//fmt.Println(models.CurrentTime())

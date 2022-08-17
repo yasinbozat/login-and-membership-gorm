@@ -20,26 +20,18 @@ type RemTime struct {
 }
 
 func UseKey(email, key string) bool {
-
 	var (
 		keys     = Key{Key: key}
 		user     = User{Mail: email}
 		userkeys = UserKey{}
 	)
-
 	if results := database.DB.Where(&user, "mail").First(&user); results.Error == nil {
 		userkeys.UserId = user.Id
 		if user.Ban == 0 {
 			if results = database.DB.Where(&keys, "key").First(&keys); results.Error == nil {
 				if keys.Active == 1 && keys.Ban == 0 {
-					if results = database.DB.Where(&userkeys, "user_id").First(&userkeys); results.Error == nil {
-						database.DB.Where("user_id = ?", user.Id).Delete(&userkeys)
-						AddDay(userkeys, user, keys)
-						return true
-					} else {
-						AddDay(userkeys, user, keys)
-						return true
-					}
+					AddDay(userkeys, user, keys)
+					return true
 				} else {
 					fmt.Println("Invalid key!")
 					return false
@@ -56,11 +48,12 @@ func UseKey(email, key string) bool {
 		fmt.Println("Invalid username!")
 		return false
 	}
-
-	return false
 }
 
 func AddDay(userkeys UserKey, user User, keys Key) {
+	if results := database.DB.Where(&userkeys, "user_id").First(&userkeys); results.Error == nil {
+		database.DB.Where("user_id = ?", user.Id).Delete(&userkeys)
+	}
 	userkeys.ExpiryDate = CalculateExpiryDate(userkeys, keys)
 	userkeys = UserKey{
 		UserId:     user.Id,

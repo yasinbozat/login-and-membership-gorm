@@ -17,15 +17,6 @@ func TestAddUser(t *testing.T) {
 	})
 }
 
-func TestLogin(t *testing.T) {
-
-	t.Run("login", func(t *testing.T) {
-		got := strconv.FormatBool(models.Login("yasinbozatr@gmail.com", "123456789"))
-		want := "false"
-		assertCorrectMessage(t, got, want)
-	})
-}
-
 func TestSelectUser(t *testing.T) {
 
 	t.Run("select user", func(t *testing.T) {
@@ -42,11 +33,35 @@ func assertCorrectMessage(t testing.TB, got, want string) {
 	}
 }
 
+func assertCorrectMessageBool(t testing.TB, got, want bool) {
+	t.Helper()
+	if got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
 func TestCurrentTime(t *testing.T) {
 
 	t.Run("current time", func(t *testing.T) {
 		got := models.CurrentTime().Format(models.DDMMYYYYhhmmss)
 		want := time.Now().Format(models.DDMMYYYYhhmmss)
+		assertCorrectMessage(t, got, want)
+	})
+}
+
+func TestUseKey(t *testing.T) {
+	t.Run("Using keys", func(t *testing.T) {
+		got := models.UseKey("yasinbozatr@gmail.com", "1VG20-BL6Q0-DL331-JZT41-Q0IM0")
+		want := true
+		assertCorrectMessageBool(t, got, want)
+	})
+}
+
+func TestLogin(t *testing.T) {
+
+	t.Run("login", func(t *testing.T) {
+		got := strconv.FormatBool(models.Login("yasinbozatr@gmail.com", "123456789"))
+		want := "true"
 		assertCorrectMessage(t, got, want)
 	})
 }
