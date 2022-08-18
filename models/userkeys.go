@@ -29,23 +29,28 @@ func UseKey(email, key string) bool {
 		userkeys.UserId = user.Id
 		if user.Ban == 0 {
 			if results = database.DB.Where(&keys, "key").First(&keys); results.Error == nil {
-				if keys.Active == 1 && keys.Ban == 0 {
-					AddDay(userkeys, user, keys)
-					return true
+				if keys.Ban == 0 {
+					if keys.Active == 1 {
+						AddDay(userkeys, user, keys)
+						return true
+					} else {
+						fmt.Println("The entered key has been used!")
+						return false
+					}
 				} else {
-					fmt.Println("Invalid key!")
+					fmt.Println("The entered key is blocked!")
 					return false
 				}
 			} else {
-				fmt.Println("Invalid key.")
+				fmt.Println("You entered an invalid or wrong key!")
 				return false
 			}
 		} else {
-			fmt.Println("You cannot use a key on a blocked account.")
+			fmt.Println("Key cannot be activated on a blocked account!")
 			return false
 		}
 	} else {
-		fmt.Println("Invalid username!")
+		fmt.Println("You entered an invalid or incorrect username!")
 		return false
 	}
 }
