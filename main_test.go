@@ -49,13 +49,7 @@ func TestCurrentTime(t *testing.T) {
 	})
 }
 
-func TestUseKey(t *testing.T) {
-	t.Run("Using keys", func(t *testing.T) {
-		got := models.UseKey("yasinbozatr@gmail.com", "1VG20-BL6Q0-DL331-JZT41-Q0IM0")
-		want := true
-		assertCorrectMessageBool(t, got, want)
-	})
-}
+
 
 func TestLogin(t *testing.T) {
 
